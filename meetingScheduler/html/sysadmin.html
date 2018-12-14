@@ -56,9 +56,6 @@ function showSchedulesHeader(){
 	colHeader = row.insertCell();
 	colHeader.innerHTML = "Creation Date";
 
-	colHeader = row.insertCell();
-	colHeader.innerHTML = "Creation Time";
-
 }
 
 function showSchedules(schedules){
@@ -89,10 +86,7 @@ function showSchedules(schedules){
     cell.innerHTML = schedules.list[i].organizer;
 
 		cell = row.insertCell();
-    cell.innerHTML = schedules.list[i].creationDate;
-
-		cell = row.insertCell();
-    cell.innerHTML = schedules.list[i].creationTime;
+    cell.innerHTML = schedules.list[i].Log;
 
   }
 }

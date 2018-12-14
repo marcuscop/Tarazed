@@ -306,15 +306,14 @@ function showSchedule(){
   var form = document.showForm;
   var secretcode = form.secretcode.value;
 
-  //var data = {};
-  //data["scheduleid"] = scheduleid;
-
   var params = "secretcode="+secretcode;
-  //var js = JSON.stringify(data);
   console.log("request: " + params);
   var xhr = new XMLHttpRequest();
   xhr.open("GET", add_url+"?"+params, true);
 
+  var data = {};
+  data["secretcode"] = secretcode;
+  var js = JSON.stringify(data);
   // send the collected data as JSON
   xhr.send();
 
@@ -537,6 +536,7 @@ function deleteSchedule(e){
       console.log ("XHR:" + xhr.responseText);
       if(xhr.status == 200){
         var js = JSON.parse(xhr.responseText);
+        document.getElementById("schedule").innerHTML = "";
       }
     }
   };
