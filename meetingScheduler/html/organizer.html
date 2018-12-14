@@ -34,6 +34,8 @@ var open_time_slot = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alp
 var delete_url = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alpha/deleteschedule";
 var extend_forwards_url = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alpha/extenddateforwards";
 var extend_backwards_url = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alpha/extenddatebackwards";
+var close_time_url = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alpha/closetime";
+var open_time_url = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alpha/opentime";
 
 var ts; // timeslots list
 var startFullDate; // start date of the calendar
@@ -605,20 +607,23 @@ function extendScheduleStart(e){
   };
 }
 
-function closeByDate(e){
-  var
+function closeByTime(e){
+  var formshow = document.showForm;
+  var scheduleid = formshow.message.value;
+  var secretcode = formshow.secretcode.value;
 
-  var form = document.closeDateForm;
-  var date = form.closedate.value;
+  var form = document.closeTimeForm;
+  var time = form.closetime.value;
 
   var data = {};
   data["scheduleid"] = scheduleid;
   data["secretcode"] = secretcode;
+  data["time"] = time;
 
   var js = JSON.stringify(data);
   console.log("JS:" + js);
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", delete_url, true);
+  xhr.open("POST", close_time_url, true);
 
   // send the collected data as JSON
   xhr.send(js);
@@ -629,6 +634,40 @@ function closeByDate(e){
       console.log ("XHR:" + xhr.responseText);
       if(xhr.status == 200){
         var js = JSON.parse(xhr.responseText);
+        showSchedule();
+      }
+    }
+  };
+}
+
+function openByTime(e){
+  var formshow = document.showForm;
+  var scheduleid = formshow.message.value;
+  var secretcode = formshow.secretcode.value;
+
+  var form = document.openTimeForm;
+  var time = form.opentime.value;
+
+  var data = {};
+  data["scheduleid"] = scheduleid;
+  data["secretcode"] = secretcode;
+  data["time"] = time;
+
+  var js = JSON.stringify(data);
+  console.log("JS:" + js);
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", open_time_url, true);
+
+  // send the collected data as JSON
+  xhr.send(js);
+
+  // This will process results and update HTML as appropriate.
+  xhr.onloadend = function () {
+    if (xhr.readyState == XMLHttpRequest.DONE) {
+      console.log ("XHR:" + xhr.responseText);
+      if(xhr.status == 200){
+        var js = JSON.parse(xhr.responseText);
+        showSchedule();
       }
     }
   };
