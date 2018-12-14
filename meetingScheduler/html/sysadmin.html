@@ -28,6 +28,74 @@
 <script type="text/javascript">
 
 var delete_schedules_url = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alpha/sys-admin-delete-schedule";
+var get_schedules_url = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alpha/getschedulessysadmin";
+
+function showSchedulesHeader(){
+	var table = document.getElementById("schedules");
+
+	// insert header
+	var colHeader;
+	var header = table.createTHead(0);
+	var row = header.insertRow(0);
+
+	colHeader = row.insertCell();
+	colHeader.innerHTML = "Start Date";
+
+	colHeader = row.insertCell();
+	colHeader.innerHTML = "End Date";
+
+	colHeader = row.insertCell();
+	colHeader.innerHTML = "Day Start Hour";
+
+	colHeader = row.insertCell();
+	colHeader.innerHTML = "Day End Hour";
+
+	colHeader = row.insertCell();
+	colHeader.innerHTML = "Organizer";
+
+	colHeader = row.insertCell();
+	colHeader.innerHTML = "Creation Date";
+
+	colHeader = row.insertCell();
+	colHeader.innerHTML = "Creation Time";
+
+}
+
+function showSchedules(schedules){
+	var table = document.getElementById("schedules");
+	table.innerHTML = "";
+
+	showSchedulesHeader();
+
+	var row;
+  var cell;
+  for (var i=0; i<schedules.list.length; i++){
+
+    row = table.insertRow();
+
+    cell = row.insertCell();
+    cell.innerHTML = schedules.list[i].startdate;
+
+    cell = row.insertCell();
+    cell.innerHTML = schedules.list[i].enddate;
+
+    cell = row.insertCell();
+    cell.innerHTML = schedules.list[i].daystarthour;
+
+		cell = row.insertCell();
+    cell.innerHTML = schedules.list[i].dayendhour;
+
+		cell = row.insertCell();
+    cell.innerHTML = schedules.list[i].organizer;
+
+		cell = row.insertCell();
+    cell.innerHTML = schedules.list[i].creationdate;
+
+		cell = row.insertCell();
+    cell.innerHTML = schedules.list[i].creationtime;
+
+  }
+}
 
 function deleteSchedules(e){
 	var Pform = document.PForm;
@@ -57,6 +125,36 @@ function deleteSchedules(e){
       }
     }
   };
+}
+
+function getSchedules(e){
+	var Pform = document.PForm;
+	var password = Pform.password.value;
+
+	var form = document.retrieveForm;
+	var hours = form.hours.value;
+
+  var params = "password="+password+"&hours="+hours;
+  console.log("request: " + params);
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", get_schedules_url+"?"+params, true);
+
+  // send the collected data as JSON
+  xhr.send();
+
+  // This will process results and update HTML as appropriate.
+  xhr.onloadend = function () {
+    console.log(xhr);
+    console.log(xhr.request);
+    if (xhr.readyState == XMLHttpRequest.DONE) {
+      console.log ("XHR:" + xhr.responseText);
+      if(xhr.status == 200){
+        var schedules = JSON.parse(xhr.responseText);
+        showSchedules(schedules);
+      }
+    }
+  };
+
 }
 
 </script>
@@ -106,9 +204,6 @@ function deleteSchedules(e){
     <div class="row">
 
       <div class="col-md-1">
-        <div class="container">
-
-        </div>
       </div>
 
       <div class="col-md-5">
@@ -142,11 +237,11 @@ function deleteSchedules(e){
 										<legend class="">Retrieve Schedules</legend>
 									</div>
 									<div class="list-group-item">
-										Hours<br><input type="search" name="days" value="" />
+										Hours<br><input type="search" name="hours" value="" />
 									</div>
 									<div class="list-group-item">
 										<legend></legend>
-										<input class="btn" type="button" value="Retrive"  onClick="JavaScript:createSchedule(this)">
+										<input class="btn" type="button" value="Retrive"  onClick="JavaScript:getSchedules(this)">
 									</div>
 
 								</fieldset>
@@ -154,6 +249,9 @@ function deleteSchedules(e){
 						</form>
 					</div>
 			</div>
+
+			<div class="col-md-1">
+      </div>
     </div>
 
     <div class="row">
@@ -162,7 +260,7 @@ function deleteSchedules(e){
       <div class="col-md-10">
         <div class="dtc animate-box">
           <div class="calendar">
-            <table class="table" id="schedule">
+            <table class="table" id="schedules">
             </table>
           </div>
         </div>
@@ -191,7 +289,7 @@ function deleteSchedules(e){
         </div>
         <div class="col-sm-5">
           <b>Description</b>
-          <p>This project was a final submission for Software Engineering CS3733 at WPI.  Organizers can create a schedule from here, and give out the secret code to participants.  Participants can join a schedule by visiting the participant page. If you want to edit the schedule at any time, visit this page.</p>
+          <p>This project was a final submission for Software Engineering CS3733 at WPI.  System Admins can search for and delete recent schedules from here.  To create a schedule, visit the organizer page.</p>
         </div>
       </div>
     </div>
