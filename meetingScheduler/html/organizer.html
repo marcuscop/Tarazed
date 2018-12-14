@@ -34,6 +34,9 @@ var open_time_slot = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alp
 var delete_url = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alpha/deleteschedule";
 var extend_forwards_url = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alpha/extenddateforwards";
 var extend_backwards_url = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alpha/extenddatebackwards";
+var close_time_url = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alpha/closetime";
+var open_time_url = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alpha/opentime";
+var edit_date_url = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alpha/editbyday";
 
 var ts; // timeslots list
 var startFullDate; // start date of the calendar
@@ -303,15 +306,14 @@ function showSchedule(){
   var form = document.showForm;
   var secretcode = form.secretcode.value;
 
-  //var data = {};
-  //data["scheduleid"] = scheduleid;
-
   var params = "secretcode="+secretcode;
-  //var js = JSON.stringify(data);
   console.log("request: " + params);
   var xhr = new XMLHttpRequest();
   xhr.open("GET", add_url+"?"+params, true);
 
+  var data = {};
+  data["secretcode"] = secretcode;
+  var js = JSON.stringify(data);
   // send the collected data as JSON
   xhr.send();
 
@@ -534,6 +536,7 @@ function deleteSchedule(e){
       console.log ("XHR:" + xhr.responseText);
       if(xhr.status == 200){
         var js = JSON.parse(xhr.responseText);
+        document.getElementById("schedule").innerHTML = "";
       }
     }
   };
@@ -544,7 +547,7 @@ function extendScheduleEnd(e){
   var secretcode = form.secretcode.value;
   var scheduleid = form.message.value;
 
-  var form2 = document.extendEndForm;
+  var form2 = document.extendForm;
   var newdate = form2.extendend.value;
 
   var data = {};
@@ -577,7 +580,7 @@ function extendScheduleStart(e){
   var secretcode = form.secretcode.value;
   var scheduleid = form.message.value;
 
-  var form2 = document.extendStartForm;
+  var form2 = document.extendForm;
   var newdate = form2.extendstart.value;
 
   var data = {};
@@ -605,20 +608,23 @@ function extendScheduleStart(e){
   };
 }
 
-function closeByDate(e){
-  var
+function closeByTime(e){
+  var formshow = document.showForm;
+  var scheduleid = formshow.message.value;
+  var secretcode = formshow.secretcode.value;
 
-  var form = document.closeDateForm;
-  var date = form.closedate.value;
+  var form = document.closeForm;
+  var time = form.closetime.value;
 
   var data = {};
   data["scheduleid"] = scheduleid;
   data["secretcode"] = secretcode;
+  data["time"] = time;
 
   var js = JSON.stringify(data);
   console.log("JS:" + js);
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", delete_url, true);
+  xhr.open("POST", close_time_url, true);
 
   // send the collected data as JSON
   xhr.send(js);
@@ -629,6 +635,106 @@ function closeByDate(e){
       console.log ("XHR:" + xhr.responseText);
       if(xhr.status == 200){
         var js = JSON.parse(xhr.responseText);
+        showSchedule();
+      }
+    }
+  };
+}
+
+function openByTime(e){
+  var formshow = document.showForm;
+  var scheduleid = formshow.message.value;
+  var secretcode = formshow.secretcode.value;
+
+  var form = document.openForm;
+  var time = form.opentime.value;
+
+  var data = {};
+  data["scheduleid"] = scheduleid;
+  data["secretcode"] = secretcode;
+  data["time"] = time;
+
+  var js = JSON.stringify(data);
+  console.log("JS:" + js);
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", open_time_url, true);
+
+  // send the collected data as JSON
+  xhr.send(js);
+
+  // This will process results and update HTML as appropriate.
+  xhr.onloadend = function () {
+    if (xhr.readyState == XMLHttpRequest.DONE) {
+      console.log ("XHR:" + xhr.responseText);
+      if(xhr.status == 200){
+        var js = JSON.parse(xhr.responseText);
+        showSchedule();
+      }
+    }
+  };
+}
+
+function closeByDate(e){
+  var formshow = document.showForm;
+  var scheduleid = formshow.message.value;
+  var secretcode = formshow.secretcode.value;
+
+  var form = document.closeForm;
+  var date = form.closedate.value;
+
+  var data = {};
+  data["secretcode"] = secretcode;
+  data["day"] = date;
+  data["action"] = 'close';
+
+  var js = JSON.stringify(data);
+  console.log("JS:" + js);
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", edit_date_url, true);
+
+  // send the collected data as JSON
+  xhr.send(js);
+
+  // This will process results and update HTML as appropriate.
+  xhr.onloadend = function () {
+    if (xhr.readyState == XMLHttpRequest.DONE) {
+      console.log ("XHR:" + xhr.responseText);
+      if(xhr.status == 200){
+        var js = JSON.parse(xhr.responseText);
+        showSchedule();
+      }
+    }
+  };
+}
+
+function openByDate(e){
+  var formshow = document.showForm;
+  var scheduleid = formshow.message.value;
+  var secretcode = formshow.secretcode.value;
+
+  var form = document.openForm;
+  var date = form.opendate.value;
+
+  var data = {};
+  data["secretcode"] = secretcode;
+  data["day"] = date;
+  data["action"] = 'open';
+
+  var js = JSON.stringify(data);
+  console.log("JS:" + js);
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", edit_date_url, true);
+
+  // send the collected data as JSON
+  xhr.send(js);
+
+  // This will process results and update HTML as appropriate.
+  xhr.onloadend = function () {
+    if (xhr.readyState == XMLHttpRequest.DONE) {
+      console.log ("XHR:" + xhr.responseText);
+      if(xhr.status == 200){
+        var js = JSON.parse(xhr.responseText);
+        showSchedule();
       }
     }
   };
@@ -662,6 +768,19 @@ function closeByDate(e){
         <div class="container">
         </div>
       </div>
+
+      <div class="row">
+  			<div class="col-md-10 col-md-offset-1 text-center" style="height: 200px;">
+  					<div class="dtc animate-box">
+  						<div class="list-group-item">
+  							<h2 class="gradient-text">Welcome Organizer</h2>
+  						</div>
+  						<div class="list-group-item">
+  							<p class="gradient-text">Create a schedule to share or view previous schedules.</p>
+  						</div>
+  					</div>
+  			</div>
+  		</div>
 
       <div class="row">
 
@@ -705,7 +824,7 @@ function closeByDate(e){
                   </fieldset>
                 </div>
               </form>
-              <form name="closeTimeForm" method="post">
+              <form name="closeForm" method="post">
                 <div class="list-group-2">
                   <fieldset>
                     <div class="list-group-2-item">
@@ -714,27 +833,20 @@ function closeByDate(e){
                         <div class="list-group-2-item">
                           Time <br><input type="search" id="closetime" name="closetime" value=""/>
                         </div>
-                      </div>
-                    </div>
-                    <div class="list-group-2-item">
-                      <input class="btn" type="button" value="Close"  onClick="JavaScript:closeByTime()">
-                    </div>
-                  </fieldset>
-                </div>
-              </form>
-              <form name="closeDateForm" method="post">
-                <div class="list-group-2">
-                  <fieldset>
-                    <div class="list-group-2-item">
-                      <div class="dl-horizontal">
-                        <legend>Close By Date</legend>
                         <div class="list-group-2-item">
-                          Date <br><input type="search" id="closedate" name="closedate" value=""/>
+                          <input class="btn" type="button" value="Close"  onClick="JavaScript:closeByTime()">
                         </div>
                       </div>
                     </div>
                     <div class="list-group-2-item">
-                      <input class="btn" type="button" value="Close"  onClick="JavaScript:closeByDate()">
+                      <div class="dl-horizontal">
+                        <div class="list-group-2-item">
+                          Date <br><input type="search" id="closedate" name="closedate" value=""/>
+                        </div>
+                        <div class="list-group-2-item">
+                          <input class="btn" type="button" value="Close"  onClick="JavaScript:closeByDate()">
+                        </div>
+                      </div>
                     </div>
                   </fieldset>
                 </div>
@@ -751,11 +863,14 @@ function closeByDate(e){
                     <div class="dl-horizontal">
                       <legend>Show Schedule</legend>
                       <div class="list-group-2-item">
-
-                      </div>
-                      <div class="list-group-2-item">
-                        <input type="search2" id="message" value="" disabled/>
-                        <input type="search2" id="secretcode" name="secretcode" value="AAAAAAAAAAAAAAA" />
+                        <div class="row">
+                          <div class="col-md-6">
+                            Give this out <br><input type="search2" id="message" value="" disabled/>
+                          </div>
+                          <div class="col-md-6">
+                            Yours <br><input type="search2" id="secretcode" name="secretcode" value="AAAAAAAAAAAAAAA" />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -782,75 +897,68 @@ function closeByDate(e){
                 </fieldset>
               </div>
             </form>
-            <form name="extendEndForm" method="post">
+            <form name="extendForm" method="post">
               <div class="list-group-2">
                 <fieldset>
                   <div class="list-group-2-item">
                     <div class="dl-horizontal">
                       <legend>Change Schedule End Date</legend>
                       <div class="list-group-2-item">
-                            Extend Forwards<br><input type="search" id="extendend" name="extendend" value="YYYY-MM-DD" />
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="list-group-2-item">
+                              Extend Forwards<br><input type="search" id="extendend" name="extendend" value="YYYY-MM-DD" />
+                            </div>
+                            <div class="list-group-2-item">
+                              <input class="btn" type="button" value="Extend End"  onClick="JavaScript:extendScheduleEnd()">
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="list-group-2-item">
+                              Extend Backwards<br><input type="search" id="extendstart" name="extendstart" value="YYYY-MM-DD" />
+                            </div>
+                            <div class="list-group-2-item">
+                              <input class="btn" type="button" value="Extend Start"  onClick="JavaScript:extendScheduleStart()">
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div class="list-group-2-item">
-                    <input class="btn" type="button" value="Extend End"  onClick="JavaScript:extendScheduleEnd()">
-                  </div>
-                </fieldset>
-              </div>
-            </form>
-            <form name="extendStartForm" method="post">
-              <div class="list-group-2">
-                <fieldset>
-                  <div class="list-group-2-item">
-                    <div class="dl-horizontal">
-                      <legend>Change Schedule Start Date</legend>
-                      <div class="list-group-2-item">
-                            Extend Backwards<br><input type="search" id="extendstart" name="extendstart" value="YYYY-MM-DD" />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="list-group-2-item">
-                    <input class="btn" type="button" value="Extend Start"  onClick="JavaScript:extendScheduleStart()">
                   </div>
                 </fieldset>
               </div>
             </form>
             <div class="row">
-              <div class="col-md-6">
-                <form name="openTimeForm" method="post">
+              <div class="col-md-12">
+                <form name="openForm" method="post">
                   <div class="list-group-2">
                     <fieldset>
                       <div class="list-group-2-item">
                         <div class="dl-horizontal">
                           <legend>Open By Time</legend>
                           <div class="list-group-2-item">
-                            Time <br><input type="search" id="opentime" name="opentime" value=""/>
+                            <div class="row">
+                              <div class="col-md-6">
+                                <div class="list-group-2-item">
+                                  Time <br><input type="search" id="opentime" name="opentime" value="HH:MM:SS"/>
+                                </div>
+                                <div class="list-group-2-item">
+                                  <input class="btn" type="button" value="Open"  onClick="JavaScript:openByTime()">
+                                </div>
+                              </div>
+                              <div class="col-md-6">
+                                <div class="list-group-2-item">
+                                  Date <br><input type="search" id="opendate" name="opendate" value="YYYY-MM-DD"/>
+                                </div>
+                                <div class="list-group-2-item">
+                                  <input class="btn" type="button" value="Open"  onClick="JavaScript:openByDate()">
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                      <div class="list-group-2-item">
-                        <input class="btn" type="button" value="Open"  onClick="JavaScript:openByTime()">
-                      </div>
-                    </fieldset>
-                  </div>
-                </form>
-              </div>
-              <div class="col-md-6">
-                <form name="openDateForm" method="post">
-                  <div class="list-group-2">
-                    <fieldset>
-                      <div class="list-group-2-item">
-                        <div class="dl-horizontal">
-                          <legend>Open By Date</legend>
-                          <div class="list-group-2-item">
-                            Date <br><input type="search" id="opendate" name="opendate" value=""/>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="list-group-2-item">
-                        <input class="btn" type="button" value="Open"  onClick="JavaScript:openByDate()">
-                      </div>
+
                     </fieldset>
                   </div>
                 </form>

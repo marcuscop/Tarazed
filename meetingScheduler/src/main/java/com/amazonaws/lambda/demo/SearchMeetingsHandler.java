@@ -64,7 +64,6 @@ public class SearchMeetingsHandler implements RequestStreamHandler {
 		responseJson.put("headers", headerJson);
 
 		CreateScheduleResponse response = null;
-
 		// extract queryStringParameters from incoming HTTP POST request. If any error,
 		// then return 422 error
 		String queryStringParameters;
