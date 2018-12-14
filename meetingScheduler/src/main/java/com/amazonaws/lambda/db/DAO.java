@@ -5,10 +5,12 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -70,7 +72,7 @@ public class DAO {
 	public boolean addSchedule(Schedule schedule) throws Exception {
 		try {
 			PreparedStatement ps = conn.prepareStatement(
-					"INSERT INTO Schedules (id, secretcode, startdate, enddate, daystarthour, dayendhour, organizer, creationdate, creationtime) values(?,?,?,?,?,?,?,NOW(),NOW());");
+					"INSERT INTO Schedules (id, secretcode, startdate, enddate, daystarthour, dayendhour, organizer,  Log) values(?,?,?,?,?,?,?,NOW());");
 
 			ps.setString(1, schedule.id);
 			ps.setString(2, schedule.getsecretcode());
@@ -230,11 +232,10 @@ public class DAO {
 		String daystarthour = resultSet.getString("daystarthour");
 		String dayendhour = resultSet.getString("dayendhour");
 		String organizer = resultSet.getString("organizer");
-		java.sql.Date creationDate = resultSet.getDate("creationdate");
-		java.sql.Time creationTime = resultSet.getTime("creationtime");
+		java.sql.Timestamp Log = resultSet.getTimestamp("Log");
 
-		return new Schedule(id, secretcode, startdate, enddate, daystarthour, dayendhour, organizer, creationDate,
-				creationTime);
+		return new Schedule(id, secretcode, startdate, enddate, daystarthour, dayendhour, organizer, Log
+				);
 	}
 
 	String getSaltString() {
@@ -376,7 +377,7 @@ public class DAO {
 			//System.out.println(date);
 			//System.out.println(formattedDateTime);
 			if(password.equals(pass)) {
-				PreparedStatement ps = conn.prepareStatement("DELETE FROM Schedules WHERE creationdate <= ?;");
+				PreparedStatement ps = conn.prepareStatement("DELETE FROM Schedules WHERE DATE(Log) <= ?;");
 				ps.setDate(1, formattedDateTime);
 				int numRows = ps.executeUpdate();
 				if (numRows > 0) {
@@ -404,14 +405,29 @@ public class DAO {
 			String pass = "yeetcarlswagon";
 			ArrayList<Schedule> ScheduleSYS = new ArrayList<Schedule>();
 			LocalDateTime time = LocalDateTime.now();
-			time = time.minusHours(hours);
+			System.out.println(time);
+
+			LocalDateTime time2 = time.minusHours(hours);
+			
+			Timestamp t = Timestamp.valueOf(time2);
+			System.out.println(time);
+		//	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:");
+		//	LocalDateTime dateTime = LocalDateTime.of(1986, Month.APRIL, 8, 12, 30);
+		//	String formattedDateTime = dateTime.format(formatter); // "1986-04-08 12:30"
 			java.sql.Timestamp formattedTime = java.sql.Timestamp.valueOf(time);
 			String formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(formattedTime);
-			String time1 = new SimpleDateFormat("HH-mm-ss").format(formattedTime);
+			System.out.println(formattedDate);
+
+			String time1 = new SimpleDateFormat("HH:mm:ss").format(formattedTime);
+			System.out.println(time1);
+
 
 			
 			java.sql.Date Date = java.sql.Date.valueOf(formattedDate);
-			java.sql.Time Time = java.sql.Time.valueOf(time1);
+			System.out.println(Date);
+			
+			java.sql.Timestamp Creationtime = java.sql.Timestamp.valueOf(time2);
+
 
 			
 
@@ -420,10 +436,13 @@ public class DAO {
 			//System.out.println(hours);
 			//System.out.println(formattedTime);
 			if(password.equals(pass)){
+		            	
+		            
+
 			PreparedStatement ps = conn.prepareStatement(
-					"SELECT * FROM  Schedules WHERE creationtime >= ? AND creationdate >= ? ORDER BY startdate, daystarthour;");
-			ps.setTime(1, Time);
-			ps.setDate(2, Date);
+					"SELECT * FROM  Schedules WHERE Log >=  ?  ORDER BY startdate, daystarthour;");
+			ps.setTimestamp(1, Creationtime);
+			
 			ResultSet resultSet = ps.executeQuery();
 			while (resultSet.next()) {
 				ScheduleSYS.add(generateSchedule(resultSet));
@@ -431,6 +450,13 @@ public class DAO {
 			resultSet.close();
 			ps.close();
 			}
+				
+				
+				
+				
+				
+			
+			
 			else {
 				String msg = "That's not the right password Jimbo";
 				WrongPassException beans = new WrongPassException();
