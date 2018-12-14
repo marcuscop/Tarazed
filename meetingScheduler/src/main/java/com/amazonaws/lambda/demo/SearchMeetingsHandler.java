@@ -41,13 +41,13 @@ public class SearchMeetingsHandler implements RequestStreamHandler {
 	 * 
 	 * @throws Exception
 	 */
-	public List<TimeSlot> FilterAll(SearchMeetingsRequest Req) throws Exception {
+	public List<TimeSlot> FilterAll(SearchMeetingsRequest Req, String id) throws Exception {
 		if (logger != null) {
 			logger.log("in Filter All");
 		}
 		DAO dao = new DAO();
 
-		return dao.FilterAll(Req);
+		return dao.FilterAll(Req, id);
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public class SearchMeetingsHandler implements RequestStreamHandler {
 			try {
 				System.out.println("3");
 
-				List<TimeSlot> list = FilterAll(req);
+				List<TimeSlot> list = FilterAll(req, req.scheduleid);
 				System.out.println("4");
 
 				resp = new SearchMeetingsResponse(list, 200);

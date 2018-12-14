@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.amazonaws.lambda.demo.EditTimeslotRequest;
 import com.amazonaws.lambda.demo.SearchMeetingsRequest;
 import com.amazonaws.lambda.model.Schedule;
 import com.amazonaws.lambda.model.TimeSlot;
@@ -27,6 +28,17 @@ public class DAO {
 		} catch (Exception e) {
 //    		e.printStackTrace();  
 			conn = null;
+		}
+	}
+	public static int setAvaliableToInt(String open) {
+		
+		switch (open.toLowerCase()) {
+		case "open":
+			return 0;
+		case "close":
+			return 1;
+		default:
+			return -1;
 		}
 	}
 
@@ -424,9 +436,14 @@ public class DAO {
 			throw new Exception("Failed in getting timeslots: " + e.getMessage());
 		}
 	}
+
+
+	public List<TimeSlot> FilterAll(SearchMeetingsRequest req, String id) throws Exception {
+
 	
 	//shoutout to Yared for that gross SQL statement
-	public List<TimeSlot> FilterAll(SearchMeetingsRequest req) throws Exception {
+	//haha gets the job done
+	//public List<TimeSlot> FilterAll(SearchMeetingsRequest req) throws Exception {
 		int Year = req.getYear();
 		int month = req.getMonth();
 		int DayOfMonth = req.getDayOfMonth();
@@ -452,7 +469,7 @@ public class DAO {
 				end = java.sql.Time.valueOf("23:00:00");
 			
 			PreparedStatement ps = conn.prepareStatement(
-					"SELECT * FROM TimeSlots WHERE available = 0 AND(YEAR(startdate) = ? OR  0 =?) AND (month(startdate) = ? OR 0 = ?) AND	(Day(startdate) = ? OR 0 =?) AND ((starttime >= ? AND endtime <= ?) OR ('0' = ?) OR ('0' = ?))  AND	(dayofweek(startdate) = ? OR 0 = ?)");
+					"SELECT * FROM TimeSlots WHERE available = 0 AND(YEAR(startdate) = ? OR  0 =?) AND (month(startdate) = ? OR 0 = ?) AND	(Day(startdate) = ? OR 0 =?) AND ((starttime >= ? AND endtime <= ?) OR ('0' = ?) OR ('0' = ?))  AND	(dayofweek(startdate) = ? OR 0 = ?) AND scheduleid = ?");
 			ps.setInt(1, Year);
 			ps.setInt(2, Year);
 			ps.setInt(3, month);
@@ -465,6 +482,7 @@ public class DAO {
 			ps.setTime(10, end);
 			ps.setInt(11, DayWeek);
 			ps.setInt(12, DayWeek);
+			ps.setString(13, id);
 
 			ResultSet resultSet = ps.executeQuery();
 
@@ -481,6 +499,35 @@ public class DAO {
 			throw new Exception("Failed in getting timeslots: " + e.getMessage());
 		}
 	}
+	public boolean Edit(String code, EditTimeslotRequest req) throws Exception {
+		try {
+			java.sql.Date day;
+			if (req.getDay() != null) {
+				day = java.sql.Date.valueOf(req.getDay());
+			} else
+				day = java.sql.Date.valueOf("0000-00-00");
+					
+			
+			int open = setAvaliableToInt(req.getOpen());
+			
+			boolean r = false;
+			PreparedStatement ps = conn.prepareStatement(
+					"UPDATE TimeSlots JOIN Schedules ON TimeSlots.scheduleid = Schedules.id SET TimeSlots.available = ? WHERE TimeSlots.startdate = ? and Schedules.secretcode = ?;");
+			ps.setInt(1, open);
+		
+			ps.setDate(2, day);
+			ps.setString(3, code);
+			
+			int numRows = ps.executeUpdate();
+			if (numRows > 0) {
+				r = true;
+			}
+			return r;
+		} catch (Exception e) {
+			throw new Exception("Failed in updating time slot: " + e.getMessage());
+		}
+	}
+
 	public int getMeetingLength(String scheduleID) throws Exception{
     	try {
     		PreparedStatement ps = conn.prepareStatement("SELECT * FROM TimeSlots WHERE scheduleid = ?");
@@ -724,4 +771,5 @@ public class DAO {
 			}
 		catch(Exception e) {throw new Exception("Failed in opening for a time: " + e.getMessage());}
 	}
+	
 }
