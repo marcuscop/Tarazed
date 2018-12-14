@@ -398,10 +398,10 @@ public class DAO {
 		}
 	}
 
-	public ArrayList<TimeSlot> getSchedules(int hours, String password) throws Exception {
+	public ArrayList<Schedule> getSchedules(int hours, String password) throws Exception {
 		try {
 			String pass = "yeetcarlswagon";
-			ArrayList<TimeSlot> ScheduleSYS = new ArrayList<TimeSlot>();
+			ArrayList<Schedule> ScheduleSYS = new ArrayList<Schedule>();
 			LocalTime time = LocalTime.now();
 			time = time.minusHours(hours);
 			java.sql.Time formattedTime = java.sql.Time.valueOf(time);
@@ -411,11 +411,11 @@ public class DAO {
 			//System.out.println(formattedTime);
 			if(password.equals(pass)){
 			PreparedStatement ps = conn.prepareStatement(
-					"SELECT TimeSlots.id, TimeSlots.secretcode, TimeSlots.startDate, TimeSlots.enddate, TimeSlots.starttime, TimeSlots.endtime, TimeSlots.participant, TimeSlots.available, TimeSlots.scheduleid FROM TimeSlots JOIN Schedules ON TimeSlots.scheduleid = Schedules.id  WHERE Schedules.creationtime >= ? ORDER BY TimeSlots.startdate, TimeSlots.starttime;");
+					"SELECT * FROM  Schedules WHERE creationtime >= ? ORDER BY startdate, daystarthour;");
 			ps.setTime(1, formattedTime);
 			ResultSet resultSet = ps.executeQuery();
 			while (resultSet.next()) {
-				ScheduleSYS.add(generateTimeSlot(resultSet));
+				ScheduleSYS.add(generateSchedule(resultSet));
 			}
 			resultSet.close();
 			ps.close();
@@ -469,7 +469,7 @@ public class DAO {
 				end = java.sql.Time.valueOf("23:00:00");
 			
 			PreparedStatement ps = conn.prepareStatement(
-					"SELECT * FROM TimeSlots WHERE available = 0 AND(YEAR(startdate) = ? OR  0 =?) AND (month(startdate) = ? OR 0 = ?) AND	(Day(startdate) = ? OR 0 =?) AND ((starttime >= ? AND endtime <= ?) OR ('0' = ?) OR ('0' = ?))  AND	(dayofweek(startdate) = ? OR 0 = ?) AND scheduleid = ?");
+					"SELECT * FROM TimeSlots WHERE available = 0 AND(YEAR(startdate) = ? OR  0 =?) AND (month(startdate) = ? OR 0 = ?) AND	(Day(startdate) = ? OR 0 =?) AND ((starttime >= ? AND endtime <= ?) OR ('0' = ?) OR ('0' = ?))  AND	(dayofweek(startdate) = ? OR 0 = ?) AND scheduleid = ? ORDER BY starttime, startdate;");
 			ps.setInt(1, Year);
 			ps.setInt(2, Year);
 			ps.setInt(3, month);
