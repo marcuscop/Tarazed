@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -402,17 +403,27 @@ public class DAO {
 		try {
 			String pass = "yeetcarlswagon";
 			ArrayList<Schedule> ScheduleSYS = new ArrayList<Schedule>();
-			LocalTime time = LocalTime.now();
+			LocalDateTime time = LocalDateTime.now();
 			time = time.minusHours(hours);
-			java.sql.Time formattedTime = java.sql.Time.valueOf(time);
+			java.sql.Timestamp formattedTime = java.sql.Timestamp.valueOf(time);
+			String formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(formattedTime);
+			String time1 = new SimpleDateFormat("HH-mm-ss").format(formattedTime);
+
+			
+			java.sql.Date Date = java.sql.Date.valueOf(formattedDate);
+			java.sql.Time Time = java.sql.Time.valueOf(time1);
+
+			
+
 
 			//System.out.println("Entering DAO");
 			//System.out.println(hours);
 			//System.out.println(formattedTime);
 			if(password.equals(pass)){
 			PreparedStatement ps = conn.prepareStatement(
-					"SELECT * FROM  Schedules WHERE creationtime >= ? ORDER BY startdate, daystarthour;");
-			ps.setTime(1, formattedTime);
+					"SELECT * FROM  Schedules WHERE creationtime >= ? AND creationdate >= ? ORDER BY startdate, daystarthour;");
+			ps.setTime(1, Time);
+			ps.setDate(2, Date);
 			ResultSet resultSet = ps.executeQuery();
 			while (resultSet.next()) {
 				ScheduleSYS.add(generateSchedule(resultSet));
