@@ -25,6 +25,41 @@
 	<link rel="stylesheet" href="../motion/css/bootstrap.css">
 	<!-- Theme style  -->
 	<link rel="stylesheet" href="../motion/css/style.css">
+<script type="text/javascript">
+
+var delete_schedules_url = "https://rbnqasw5vg.execute-api.us-east-2.amazonaws.com/Alpha/sys-admin-delete-schedule";
+
+function deleteSchedules(e){
+	var Pform = document.PForm;
+	var password = Pform.password.value;
+
+	var form = document.deleteForm;
+	var days = form.days.value;
+
+	var data = {};
+  data["days"] = days;
+	data["password"] = password;
+
+  var js = JSON.stringify(data);
+  console.log("JS:" + js);
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", delete_schedules_url, true);
+
+  // send the collected data as JSON
+  xhr.send(js);
+
+  // This will process results and update HTML as appropriate.
+  xhr.onloadend = function () {
+    if (xhr.readyState == XMLHttpRequest.DONE) {
+      console.log ("XHR:" + xhr.responseText);
+      if(xhr.status == 200){
+        var js = JSON.parse(xhr.responseText);
+      }
+    }
+  };
+}
+
+</script>
 </head>
 
 <body>
@@ -54,6 +89,7 @@
 
 		<div class="row">
 			<div class="col-md-10 col-md-offset-1 text-center" style="height: 200px;">
+				<form name="PForm" method="post" >
 					<div class="dtc animate-box">
 						<div class="list-group-item">
 							<h2 class="gradient-text">Welcome System Admin</h2>
@@ -63,6 +99,7 @@
 							<input type="search" name="password" value="PASSWORD" />
 						</div>
 					</div>
+				</form>
 			</div>
 		</div>
 
@@ -87,7 +124,7 @@
                   </div>
                   <div class="list-group-item">
                     <legend></legend>
-                    <input class="btn" type="button" value="Delete"  onClick="JavaScript:createSchedule(this)">
+                    <input class="btn" type="button" value="Delete"  onClick="JavaScript:deleteSchedules(this)">
                   </div>
 
                 </fieldset>
